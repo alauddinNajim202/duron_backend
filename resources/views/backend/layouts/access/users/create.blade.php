@@ -68,7 +68,7 @@
                                                 @foreach ($roles as $role)
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input @error('roles') is-invalid @enderror" type="checkbox" id="role-{{ $role->id }}" name="roles[]" value="{{ $role->id }}">
-                                                    <label class="form-check-label" for="role-{{ $role->id }}">{{ $role->name }}</label>
+                                                    <label class="form-check-label" for="role-{{ $role->id }}">{{ ucfirst($role->name) }} <small class="text-muted">({{ $role->guard_name }})</small></label>
                                                 </div>
                                                 @endforeach
                                             </div>

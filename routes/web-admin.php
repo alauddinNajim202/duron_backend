@@ -55,7 +55,7 @@ Route::get("dashboard", [DashboardController::class, 'index'])->name('dashboard'
 | Category Management Routes
 |--------------------------------------------------------------------------
 */
-Route::group(['prefix' => 'categories', 'as' => 'categories.'], function () {
+Route::group(['prefix' => 'categories', 'as' => 'categories.', 'middleware' => ['role_or_permission:admin|view categories|manage categories']], function () {
     Route::get('/', [CategoryManageController::class, 'index'])->name('index');
     Route::post('/store', [CategoryManageController::class, 'store'])->name('store');
     Route::post('/update/{id}', [CategoryManageController::class, 'update'])->name('update');
@@ -69,7 +69,7 @@ Route::group(['prefix' => 'categories', 'as' => 'categories.'], function () {
 | Tag Management Routes
 |--------------------------------------------------------------------------
 */
-Route::group(['prefix' => 'tags', 'as' => 'tags.'], function () {
+Route::group(['prefix' => 'tags', 'as' => 'tags.', 'middleware' => ['role_or_permission:admin|view tags|manage tags']], function () {
     Route::get('/', [TagManageController::class, 'index'])->name('index');
     Route::post('/store', [TagManageController::class, 'store'])->name('store');
     Route::get('/get/{id}', [TagManageController::class, 'getTag'])->name('get');
@@ -82,7 +82,7 @@ Route::group(['prefix' => 'tags', 'as' => 'tags.'], function () {
 | Gig Management Routes
 |--------------------------------------------------------------------------
 */
-Route::prefix('gigs')->name('gigs.')->group(function () {
+Route::prefix('gigs')->name('gigs.')->middleware('role_or_permission:admin|view gigs|manage gigs')->group(function () {
     Route::get('/', [GigManageController::class, 'index'])->name('index');
     Route::get('/data', [GigManageController::class, 'getData'])->name('get.data');
     Route::get('/{id}', [GigManageController::class, 'show'])->name('show');
@@ -96,7 +96,7 @@ Route::prefix('gigs')->name('gigs.')->group(function () {
 | Language Management Routes
 |--------------------------------------------------------------------------
 */
-Route::group(['prefix' => 'languages', 'as' => 'languages.'], function () {
+Route::group(['prefix' => 'languages', 'as' => 'languages.', 'middleware' => ['role_or_permission:admin|view languages|manage languages']], function () {
     Route::get('/', [LanguageManageController::class, 'index'])->name('index');
     Route::post('/store', [LanguageManageController::class, 'store'])->name('store');
     Route::get('/get/{id}', [LanguageManageController::class, 'getLanguage'])->name('get');
@@ -109,7 +109,7 @@ Route::group(['prefix' => 'languages', 'as' => 'languages.'], function () {
 | User Management Routes
 |--------------------------------------------------------------------------
 */
-Route::prefix('experts')->name('experts.')->group(function () {
+Route::prefix('experts')->name('experts.')->middleware('role_or_permission:admin|view users')->group(function () {
     Route::get('/', [ExpertManageController::class, 'index'])->name('index');
     Route::get('/data', [ExpertManageController::class, 'getData'])->name('data');
     Route::get('/export', [ExpertManageController::class, 'export'])->name('export');
@@ -133,7 +133,7 @@ Route::prefix('experts')->name('experts.')->group(function () {
 });
 
 // Clients Management
-Route::prefix('clients')->name('clients.')->group(function () {
+Route::prefix('clients')->name('clients.')->middleware('role_or_permission:admin|view users')->group(function () {
     Route::get('/', [ClientManageController::class, 'index'])->name('index');
     Route::get('/data', [ClientManageController::class, 'getData'])->name('data');
     Route::get('/export', [ClientManageController::class, 'export'])->name('export');
@@ -152,7 +152,7 @@ Route::prefix('clients')->name('clients.')->group(function () {
 | QA Management Routes
 |--------------------------------------------------------------------------
 */
-Route::prefix('qa')->name('qa.')->group(function () {
+Route::prefix('qa')->name('qa.')->middleware('role_or_permission:admin|view orders|manage orders')->group(function () {
     Route::get('/', [QaManageController::class, 'index'])->name('index');
     Route::get('/data', [QaManageController::class, 'getData'])->name('data');
     Route::get('/{reviewId}', [QaManageController::class, 'show'])->name('show');
@@ -165,7 +165,7 @@ Route::prefix('qa')->name('qa.')->group(function () {
 | Order Management Routes
 |------------------------------------------------------------------------
 */
-Route::prefix('orders')->name('orders.')->group(function () {
+Route::prefix('orders')->name('orders.')->middleware('role_or_permission:admin|view orders|manage orders')->group(function () {
     Route::get('/', [OrderManageController::class, 'index'])->name('index');
     Route::get('/data', [OrderManageController::class, 'getData'])->name('data');
     Route::get('/export', [OrderManageController::class, 'export'])->name('export');
@@ -177,7 +177,7 @@ Route::prefix('orders')->name('orders.')->group(function () {
 | Extenstion Requests Management Routes
 |--------------------------------------------------------------------------
 */
-Route::prefix('extension-requests')->name('extension-requests.')->group(function () {
+Route::prefix('extension-requests')->name('extension-requests.')->middleware('role_or_permission:admin|view orders|manage orders')->group(function () {
     Route::get('/', [ExtensionRequestController::class, 'index'])->name('index');
     Route::get('/data', [ExtensionRequestController::class, 'getData'])->name('data');
     Route::get('/{id}', [ExtensionRequestController::class, 'show'])->name('show');
@@ -191,7 +191,7 @@ Route::prefix('extension-requests')->name('extension-requests.')->group(function
 | Add these inside your existing admin middleware group
 |--------------------------------------------------------------------------
 */
-Route::prefix('payments')->name('payments.')->group(function () {
+Route::prefix('payments')->name('payments.')->middleware('role_or_permission:admin|view payments|manage payments')->group(function () {
 
     // Dashboard
     Route::get('/', [AdminPaymentController::class, 'index'])->name('index');
@@ -219,7 +219,7 @@ Route::prefix('payments')->name('payments.')->group(function () {
 | Contact Management Routes
 |--------------------------------------------------------------------------
 */
-Route::prefix('contact')->name('contact.')->group(function () {
+Route::prefix('contact')->name('contact.')->middleware('role_or_permission:admin|view supports|manage supports')->group(function () {
     Route::get('/', [ContactController::class, 'index'])->name('index');
     Route::get('/status/{id}', [ContactController::class, 'status'])->name('status');
 });
@@ -229,7 +229,7 @@ Route::prefix('contact')->name('contact.')->group(function () {
 | CMS Management Routes
 |--------------------------------------------------------------------------
 */
-Route::prefix('cms')->name('cms.')->group(function () {
+Route::prefix('cms')->name('cms.')->middleware('role_or_permission:admin|view cms|manage cms')->group(function () {
     //Privacy and Terms
     Route::controller(PrivacAndTermsController::class)->prefix('privecyandterms')->name('privecyandterms.')->group(function () {
         Route::get('/terms', 'termsAndCondition')->name('terms');
@@ -367,104 +367,102 @@ Route::get('subscriber', [SubscriberController::class, 'index'])->name('subscrib
 
 
 /*
-* Users Access Route
+* Users Access Route & Settings (Admin Only)
 */
-Route::resource('users', UserController::class);
-Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
-    Route::get('/status/{id}', 'status')->name('status');
-    Route::get('/new', 'new')->name('new.index');
-    Route::get('/ajax/new/count', 'newCount')->name('ajax.new.count');
-    Route::get('/card/{slug}', 'card')->name('card');
-});
-Route::resource('permissions', PermissionController::class);
-Route::resource('roles', RoleController::class);
+Route::middleware('role:admin')->group(function () {
+    Route::resource('users', UserController::class);
+    Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
+        Route::get('/status/{id}', 'status')->name('status');
+        Route::get('/new', 'new')->name('new.index');
+        Route::get('/ajax/new/count', 'newCount')->name('ajax.new.count');
+        Route::get('/card/{slug}', 'card')->name('card');
+    });
+    Route::resource('permissions', PermissionController::class);
+    Route::resource('roles', RoleController::class);
 
-/*
-*settings
-*/
+    //! Route for Profile Settings
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('setting/profile', 'index')->name('setting.profile.index');
+        Route::put('setting/profile/update', 'UpdateProfile')->name('setting.profile.update');
+        Route::put('setting/profile/update/Password', 'UpdatePassword')->name('setting.profile.update.Password');
+        Route::post('setting/profile/update/avatar', 'UpdateProfilePicture')->name('update.profile.picture');
+    });
 
-//! Route for Profile Settings
-Route::controller(ProfileController::class)->group(function () {
-    Route::get('setting/profile', 'index')->name('setting.profile.index');
-    Route::put('setting/profile/update', 'UpdateProfile')->name('setting.profile.update');
-    Route::put('setting/profile/update/Password', 'UpdatePassword')->name('setting.profile.update.Password');
-    Route::post('setting/profile/update/avatar', 'UpdateProfilePicture')->name('update.profile.picture');
-});
+    //! Route for Mail Settings
+    Route::controller(MailSettingController::class)->group(function () {
+        Route::get('setting/mail', 'index')->name('setting.mail.index');
+        Route::patch('setting/mail', 'update')->name('setting.mail.update');
 
-//! Route for Mail Settings
-Route::controller(MailSettingController::class)->group(function () {
-    Route::get('setting/mail', 'index')->name('setting.mail.index');
-    Route::patch('setting/mail', 'update')->name('setting.mail.update');
+        Route::post('setting/send', 'send')->name('setting.mail.send');
+    });
 
-    Route::post('setting/send', 'send')->name('setting.mail.send');
-});
+    //! Route for Stripe Settings
+    Route::controller(StripeController::class)->prefix('setting/stripe')->name('setting.stripe.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::patch('/update', 'update')->name('update');
+        Route::patch('/update-onboarding', 'updateOnboarding')->name('update-onboarding');
+        Route::patch('/update-percentage', 'updateAdminPercentage')->name('update-percentage');
+    });
 
-//! Route for Stripe Settings
-Route::controller(StripeController::class)->prefix('setting/stripe')->name('setting.stripe.')->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::patch('/update', 'update')->name('update');
-    Route::patch('/update-onboarding', 'updateOnboarding')->name('update-onboarding');
-    Route::patch('/update-percentage', 'updateAdminPercentage')->name('update-percentage');
-});
+    //! Route for Firebase Settings
+    Route::controller(FirebaseController::class)->prefix('setting/firebase')->name('setting.firebase.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::patch('/update', 'update')->name('update');
+    });
 
-//! Route for Firebase Settings
-Route::controller(FirebaseController::class)->prefix('setting/firebase')->name('setting.firebase.')->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::patch('/update', 'update')->name('update');
-});
+    //! Route for Environment Settings
+    Route::controller(EnvController::class)->group(function () {
+        Route::get('setting/env', 'index')->name('setting.env.index');
+        Route::patch('setting/env', 'update')->name('setting.env.update');
+    });
 
-//! Route for Environment Settings
-Route::controller(EnvController::class)->group(function () {
-    Route::get('setting/env', 'index')->name('setting.env.index');
-    Route::patch('setting/env', 'update')->name('setting.env.update');
-});
+    //! Route for Social Settings
+    Route::controller(SocialController::class)->prefix('setting/social')->name('setting.social.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::patch('/update', 'update')->name('update');
+    });
 
-//! Route for Firebase Settings
-Route::controller(SocialController::class)->prefix('setting/social')->name('setting.social.')->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::patch('/update', 'update')->name('update');
-});
+    //! Route for General Settings
+    Route::controller(SettingController::class)->group(function () {
+        Route::get('setting/general', 'index')->name('setting.general.index');
+        Route::patch('setting/general', 'update')->name('setting.general.update');
+    });
 
-//! Route for Stripe Settings
-Route::controller(SettingController::class)->group(function () {
-    Route::get('setting/general', 'index')->name('setting.general.index');
-    Route::patch('setting/general', 'update')->name('setting.general.update');
-});
+    //! Route for Logo Settings
+    Route::controller(LogoController::class)->group(function () {
+        Route::get('setting/logo', 'index')->name('setting.logo.index');
+        Route::patch('setting/logo', 'update')->name('setting.logo.update');
+    });
 
-//! Route for Logo Settings
-Route::controller(LogoController::class)->group(function () {
-    Route::get('setting/logo', 'index')->name('setting.logo.index');
-    Route::patch('setting/logo', 'update')->name('setting.logo.update');
-});
+    //! Route for Google Map Settings
+    Route::controller(GoogleMapController::class)->group(function () {
+        Route::get('setting/google/map', 'index')->name('setting.google.map.index');
+        Route::patch('setting/google/map', 'update')->name('setting.google.map.update');
+    });
 
-//! Route for Google Map Settings
-Route::controller(GoogleMapController::class)->group(function () {
-    Route::get('setting/google/map', 'index')->name('setting.google.map.index');
-    Route::patch('setting/google/map', 'update')->name('setting.google.map.update');
-});
+    //! Route for Signature Settings
+    Route::controller(SignatureController::class)->group(function () {
+        Route::get('setting/signature', 'index')->name('setting.signature.index');
+        Route::patch('setting/signature', 'update')->name('setting.signature.update');
+    });
 
-//! Route for Google Map Settings
-Route::controller(SignatureController::class)->group(function () {
-    Route::get('setting/signature', 'index')->name('setting.signature.index');
-    Route::patch('setting/signature', 'update')->name('setting.signature.update');
-});
+    //! Route for Captcha Settings
+    Route::controller(CaptchaController::class)->group(function () {
+        Route::get('setting/captcha', 'index')->name('setting.captcha.index');
+        Route::patch('setting/captcha', 'update')->name('setting.captcha.update');
+    });
 
-//! Route for Google Map Settings
-Route::controller(CaptchaController::class)->group(function () {
-    Route::get('setting/captcha', 'index')->name('setting.captcha.index');
-    Route::patch('setting/captcha', 'update')->name('setting.captcha.update');
-});
-
-//Ajax settings
-Route::prefix('setting/other')->name('setting.other')->group(function () {
-    Route::get('/', [OtherController::class, 'index'])->name('.index');
-    Route::get('/mail', [OtherController::class, 'mail'])->name('.mail');
-    Route::get('/sms', [OtherController::class, 'sms'])->name('.sms');
-    Route::get('/recaptcha', [OtherController::class, 'recaptcha'])->name('.recaptcha');
-    Route::get('/pagination', [OtherController::class, 'pagination'])->name('.pagination');
-    Route::get('/reverb', [OtherController::class, 'reverb'])->name('.reverb');
-    Route::get('/debug', [OtherController::class, 'debug'])->name('.debug');
-    Route::get('/access', [OtherController::class, 'access'])->name('.access');
+    //Ajax settings
+    Route::prefix('setting/other')->name('setting.other')->group(function () {
+        Route::get('/', [OtherController::class, 'index'])->name('.index');
+        Route::get('/mail', [OtherController::class, 'mail'])->name('.mail');
+        Route::get('/sms', [OtherController::class, 'sms'])->name('.sms');
+        Route::get('/recaptcha', [OtherController::class, 'recaptcha'])->name('.recaptcha');
+        Route::get('/pagination', [OtherController::class, 'pagination'])->name('.pagination');
+        Route::get('/reverb', [OtherController::class, 'reverb'])->name('.reverb');
+        Route::get('/debug', [OtherController::class, 'debug'])->name('.debug');
+        Route::get('/access', [OtherController::class, 'access'])->name('.access');
+    });
 });
 
 

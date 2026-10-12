@@ -11,12 +11,18 @@ class WebCustomRedirectMiddleware
     public function handle(Request $request, Closure $next)
     {
         if (Auth::guard('web')->check() && Auth::guard('web')->user()->status == 'active') {
-            if (Auth::guard('web')->user()->hasRole('admin')) {
-                return redirect()->intended(route('admin.dashboard', absolute: false));
-            } else {
-                Auth::logout();
-                return redirect()->intended(route('login', absolute: false));
+            $user = Auth::guard('web')->user();
+
+            if ($user->hasRole('developer')) {
+                return redirect()->intended(route('developer.dashboard', absolute: false));
             }
+
+            if ($user->isBackendUser()) {
+                return redirect()->intended(route('admin.dashboard', absolute: false));
+            }
+
+            Auth::logout();
+            return redirect()->route('login')->withErrors(['email' => 'You do not have access to the administrative panel.']);
         }
 
         return redirect()->intended(route('home', absolute: false));

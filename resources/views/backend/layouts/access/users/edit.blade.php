@@ -52,8 +52,8 @@
                                             <div class="form-check">
                                                 @foreach ($roles as $role)
                                                 <div class="form-check form-check-inline">
-                                                    <input class="form-check-input @error('roles') is-invalid @enderror" type="checkbox" id="role-{{ $role->id }}" name="roles[]" value="{{ $role->id }}" {{ in_array($role->name, $user->roles->pluck('name')->toArray()) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="role-{{ $role->id }}">{{ $role->name }}</label>
+                                                    <input class="form-check-input @error('roles') is-invalid @enderror" type="checkbox" id="role-{{ $role->id }}" name="roles[]" value="{{ $role->id }}" {{ $user->roles->contains('id', $role->id) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="role-{{ $role->id }}">{{ ucfirst($role->name) }} <small class="text-muted">({{ $role->guard_name }})</small></label>
                                                 </div>
                                                 @endforeach
                                             </div>

@@ -45,7 +45,7 @@
                                         <tr>
                                             <th>SN</th>
                                             <th>Name</th>
-                                            <th>Slug</th>
+                                            <th>Email</th>
                                             <th>Roles</th>
                                             <th>Guard</th>
                                             <th>Created</th>
@@ -59,56 +59,54 @@
                                         <tr>
                                             <td>{{ $sn++ }}</td>
                                             <td>{{ $user->name }}</td>
-                                            <td>{{ $user->slug }}</td>
+                                            <td>{{ $user->email }}</td>
                                             <td>
                                                 @forelse ($user->roles as $role)
                                                 <span class="badge rounded-pill bg-primary">{{ $role->name }}</span>
                                                 @empty
-                                                <span class="badge rounded-pill bg-primary">N/A</span>
+                                                <span class="badge rounded-pill bg-secondary">N/A</span>
                                                 @endforelse
                                             </td>
                                             <td>
                                                 @forelse ($user->roles as $role)
-                                                <span class="badge rounded-pill bg-primary">{{ $role->guard_name }}</span>
+                                                <span class="badge rounded-pill bg-info">{{ $role->guard_name }}</span>
                                                 @empty
-                                                <span class="badge rounded-pill bg-primary">N/A</span>
+                                                <span class="badge rounded-pill bg-secondary">N/A</span>
                                                 @endforelse
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($user->created_at)->format('d-m-Y') }}</td>
                                             <td class="text-center">
-                                                <div class="btn-group" role="group" aria-label="Basic example">
+                                                <div class="btn-group" role="group" aria-label="Action buttons">
 
-                                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary">
+                                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary btn-sm" title="Edit">
                                                         <i class="mdi mdi-pencil"></i>
                                                     </a>
 
-                                                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-info">
+                                                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-info btn-sm" title="View">
                                                         <i class="mdi mdi-eye"></i>
                                                     </a>
-                                                    
-                                                    <a href="{{ route('admin.users.card', $user->slug) }}" class="btn btn-success">
+
+                                                    @if (!empty($user->slug))
+                                                    <a href="{{ route('admin.users.card', $user->slug) }}" class="btn btn-success btn-sm" title="Card" target="_blank">
                                                         <i class="mdi mdi-printer"></i>
                                                     </a>
+                                                    @endif
 
-                                                    @can('web_update', $user)
-                                                    <a href="{{ route('admin.users.status', $user->id) }}" class="btn btn-warning">
+                                                    <a href="{{ route('admin.users.status', $user->id) }}" class="btn btn-warning btn-sm" title="Toggle Status">
                                                         @if ($user->status == 'active')
                                                         <i class="fa-solid fa-lock-open"></i>
                                                         @else
                                                         <i class="fa-solid fa-lock"></i>
                                                         @endif
                                                     </a>
-                                                    @endcan
 
-                                                    @can('web_delete', $user)
-                                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure?')" style="margin: 0; padding: 0;">
+                                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?')" style="margin: 0; padding: 0;">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger" style="border-radius: 0; border-top-right-radius: 5px; border-bottom-right-radius: 5px;">
+                                                        <button type="submit" class="btn btn-danger btn-sm" style="border-radius: 0; border-top-right-radius: 5px; border-bottom-right-radius: 5px;" title="Delete">
                                                             <i class="mdi mdi-delete"></i>
                                                         </button>
                                                     </form>
-                                                    @endcan
                                                 </div>
 
                                             </td>

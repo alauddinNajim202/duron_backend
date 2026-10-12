@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $user = Auth::guard('web')->user();
-        $users = User::where('id', '!=', $user->id)->with('roles')->orderBy('id', 'desc')->paginate(25);;
+        $users = User::where('id', '!=', $user->id)->with(['roles', 'profile'])->orderBy('id', 'desc')->paginate(25);
         return view('backend.layouts.access.users.index', compact('users'));
     }
 
@@ -43,18 +43,21 @@ class UserController extends Controller
         }
 
         $user = new User();
-        $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
+        $user->status = 'active';
+        $user->email_verified_at = now();
         $user->save();
+
+        $slug = \Illuminate\Support\Str::slug($request->name ?: 'user') . '-' . $user->id;
+        $user->profile()->create([
+            'first_name' => $request->name,
+            'username'   => \Illuminate\Support\Str::slug($request->name ?: 'user') . $user->id,
+            'slug'       => $slug,
+        ]);
         
-        foreach ($request->roles as $role) {
-            DB::table('model_has_roles')->insert([
-                'role_id' => $role,
-                'model_type' => 'App\Models\User',
-                'model_id' => $user->id
-            ]);
-        }
+        $roleModels = Role::whereIn('id', $request->roles)->get();
+        $user->syncRoles($roleModels);
 
         return redirect()->route('admin.users.index')->with('t-success', 'User created t-successfully');
     }
@@ -86,23 +89,28 @@ class UserController extends Controller
         }
 
         try {
-            $user = User::find($id);
+            $user = User::findOrFail($id);
             $user->update([
-                'name' => $request->name,
                 'email' => $request->email,
             ]);
 
-            DB::table('model_has_roles')->where('model_id', $id)->delete();
-
-            foreach ($request->roles as $role) {
-                DB::table('model_has_roles')->insert([
-                    'role_id' => $role,
-                    'model_type' => 'App\Models\User',
-                    'model_id' => $user->id
+            if ($user->profile) {
+                $user->profile->update([
+                    'first_name' => $request->name,
                 ]);
-            }            
+            } else {
+                $slug = \Illuminate\Support\Str::slug($request->name ?: 'user') . '-' . $user->id;
+                $user->profile()->create([
+                    'first_name' => $request->name,
+                    'username'   => \Illuminate\Support\Str::slug($request->name ?: 'user') . $user->id,
+                    'slug'       => $slug,
+                ]);
+            }
 
-            return redirect()->back()->with('t-success', 'User updated t-successfully');
+            $roleModels = Role::whereIn('id', $request->roles)->get();
+            $user->syncRoles($roleModels);           
+
+            return redirect()->route('admin.users.index')->with('t-success', 'User updated successfully');
         } catch (Exception $e) {
             return redirect()->back()->with('t-error', $e->getMessage());
         }
@@ -130,27 +138,26 @@ class UserController extends Controller
 
     public function card($slug)
     {
+        $profile = \App\Models\Profile::where('slug', $slug)->first();
+        $user = $profile ? $profile->user : User::find($slug);
 
-        $user = User::where('slug', $slug)->first();
-        $logoBase64 = base64_encode(file_get_contents(public_path('default/logo.png')));
-        $whitelogoBase64 = base64_encode(file_get_contents(public_path('default/logo.png')));
-        $backLogoBase64 = base64_encode(file_get_contents(public_path('default/logo.png')));
+        if (!$user) {
+            abort(404, 'User not found');
+        }
+
+        $logoBase64 = file_exists(public_path('default/logo.png')) ? base64_encode(file_get_contents(public_path('default/logo.png'))) : '';
+        $whitelogoBase64 = $logoBase64;
+        $backLogoBase64 = $logoBase64;
 
         $avatarPath = public_path(
             $user->avatar && file_exists(public_path($user->avatar)) ? $user->avatar : 'default/profile.jpg'
         );
 
-        $avatarBase64 = base64_encode(file_get_contents($avatarPath));
+        $avatarBase64 = file_exists($avatarPath) ? base64_encode(file_get_contents($avatarPath)) : '';
 
-        //for pdf
-        /* $qrCode = base64_encode(QrCode::size(90)->generate(route('admin.users.card', $user->slug)));
-        $pdf = Pdf::loadView('card.pdf', compact('user', 'logoBase64', 'whitelogoBase64', 'avatarBase64', 'qrCode', 'backLogoBase64'))->setPaper('a4', 'portrait');
-        return $pdf->stream();  */
-        
         //for web
-        $qrCode = QrCode::size(90)->generate(route('admin.users.card', $user->slug));
+        $cardSlug = $user->slug ?: $user->id;
+        $qrCode = QrCode::size(90)->generate(route('admin.users.card', $cardSlug));
         return view('card.web', compact('user', 'logoBase64', 'whitelogoBase64', 'avatarBase64', 'qrCode', 'backLogoBase64'));
-
     }
-    
 }

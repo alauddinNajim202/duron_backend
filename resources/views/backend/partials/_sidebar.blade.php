@@ -27,6 +27,7 @@
                 </li>
 
                 {{-- Manage Tags --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('manage tags') || auth()->user()?->can('view tags') || auth()->user()?->can('view categories') || auth()->user()?->can('view languages'))
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('admin.tags.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.languages.*') ? 'has-link active' : '' }}"
                         data-bs-toggle="slide" href="#">
@@ -35,19 +36,27 @@
                         <i class="angle fa fa-angle-right"></i>
                     </a>
                     <ul class="slide-menu">
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view tags') || auth()->user()?->can('manage tags'))
                         <li><a href="{{ route('admin.tags.index') }}"
                                 class="slide-item {{ request()->routeIs('admin.tags.*') ? 'active' : '' }}"> Gig Tags
                             </a></li>
+                        @endif
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view categories') || auth()->user()?->can('manage categories'))
                         <li><a href="{{ route('admin.categories.index') }}"
                                 class="slide-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}"> Gig
                                 Categories </a></li>
+                        @endif
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view languages') || auth()->user()?->can('manage languages'))
                         <li><a href="{{ route('admin.languages.index') }}"
                                 class="slide-item {{ request()->routeIs('admin.languages.*') ? 'active' : '' }}">
                                 Supported Languages </a></li>
+                        @endif
                     </ul>
                 </li>
+                @endif
 
                 {{-- Manage Users --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view users') || auth()->user()?->can('manage users'))
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('admin.experts.*') || request()->routeIs('admin.clients.*') ? 'has-link active' : '' }}"
                         data-bs-toggle="slide" href="#">
@@ -64,8 +73,39 @@
                             </a></li>
                     </ul>
                 </li>
+                @endif
+
+                {{-- Access Control (Roles & Permissions) --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view access control') || auth()->user()?->can('manage access control') || auth()->user()?->can('view roles') || auth()->user()?->can('view permissions') || auth()->user()?->can('view admin users'))
+                <li class="slide">
+                    <a class="side-menu__item {{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') || request()->routeIs('admin.users.*') ? 'has-link active' : '' }}"
+                        data-bs-toggle="slide" href="#">
+                        <i class="side-menu__icon fa-solid fa-user-shield"></i>
+                        <span class="side-menu__label">Access Control</span>
+                        <i class="angle fa fa-angle-right"></i>
+                    </a>
+                    <ul class="slide-menu">
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view roles') || auth()->user()?->can('manage roles'))
+                        <li><a href="{{ route('admin.roles.index') }}"
+                                class="slide-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}"> Roles </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view permissions') || auth()->user()?->can('manage permissions'))
+                        <li><a href="{{ route('admin.permissions.index') }}"
+                                class="slide-item {{ request()->routeIs('admin.permissions.*') ? 'active' : '' }}"> Permissions </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view admin users') || auth()->user()?->can('manage admin users'))
+                        <li><a href="{{ route('admin.users.index') }}"
+                                class="slide-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"> Admin Users </a>
+                        </li>
+                        @endif
+                    </ul>
+                </li>
+                @endif
 
                 {{-- Manage Gigs --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view gigs') || auth()->user()?->can('manage gigs'))
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('admin.gigs.*') ? 'has-link active' : '' }}"
                         data-bs-toggle="slide" href="#">
@@ -79,35 +119,45 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 {{-- Manage Order --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view orders') || auth()->user()?->can('manage orders') || auth()->user()?->can('view qa requests') || auth()->user()?->can('view extension requests'))
                 <li class="slide">
-                    <a class="side-menu__item {{ request()->routeIs('admin.qa.*') ? 'has-link active' : '' }}"
+                    <a class="side-menu__item {{ request()->routeIs('admin.qa.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.extension-requests.*') ? 'has-link active' : '' }}"
                         data-bs-toggle="slide" href="#">
                         <i class="side-menu__icon fa-brands fa-first-order"></i>
                         <span class="side-menu__label">Manage Order</span>
                         <i class="angle fa fa-angle-right"></i>
                     </a>
                     <ul class="slide-menu">
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view qa requests') || auth()->user()?->can('view orders') || auth()->user()?->can('manage orders'))
                         <li><a href="{{ route('admin.qa.index') }}"
                                 class="slide-item {{ request()->routeIs('admin.qa.index') ? 'active' : '' }}"> QA
                                 Request
                             </a>
                         </li>
+                        @endif
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view orders') || auth()->user()?->can('manage orders'))
                         <li><a href="{{ route('admin.orders.index') }}"
                                 class="slide-item {{ request()->routeIs('admin.orders.index') ? 'active' : '' }}"> All
                                 Orders
                             </a>
                         </li>
+                        @endif
+                        @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view extension requests') || auth()->user()?->can('view orders') || auth()->user()?->can('manage orders'))
                         <li><a href="{{ route('admin.extension-requests.index') }}"
                                 class="slide-item {{ request()->routeIs('admin.extension-requests.index') ? 'active' : '' }}">
                                 Extension Requests
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </li>
+                @endif
 
                 {{-- Payment Controle --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view payments') || auth()->user()?->can('manage payments'))
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('admin.payments.index') ? 'has-link active' : '' }}"
                         href="{{ route('admin.payments.index') }}">
@@ -115,8 +165,10 @@
                         <span class="side-menu__label">Payments</span>
                     </a>
                 </li>
+                @endif
 
                 {{-- Contact Order --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view supports') || auth()->user()?->can('manage supports'))
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('admin.contact.index') ? 'has-link active' : '' }}"
                         href="{{ route('admin.contact.index') }}">
@@ -124,7 +176,10 @@
                         <span class="side-menu__label">Support Corner</span>
                     </a>
                 </li>
+                @endif
 
+                {{-- Terms & Privacy --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view terms and privacy') || auth()->user()?->can('manage terms and privacy') || auth()->user()?->can('view cms') || auth()->user()?->can('manage cms'))
                 <li class="slide">
                     <a class="side-menu__item {{ request()->routeIs('admin.cms.privecyandterms.*') ? 'has-link active' : '' }}"
                         data-bs-toggle="slide" href="#">
@@ -141,7 +196,10 @@
                                 Privacy Policy </a></li>
                     </ul>
                 </li>
+                @endif
 
+                {{-- CMS --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view cms') || auth()->user()?->can('manage cms'))
                 <li>
                     <h3>CMS</h3>
                 </li>
@@ -161,42 +219,12 @@
                         <li><a href="{{ route('admin.cms.home.tags.section') }}"
                                 class="slide-item {{ request()->routeIs('admin.cms.home.tags.section') ? 'active' : '' }}">
                                 Tags Section </a></li>
-                        {{-- <li><a href="{{ route('admin.cms.home.ai-security.index') }}"
-                                class="slide-item {{ request()->routeIs('admin.cms.ai-security.section') ? 'active' : '' }}">
-                                Security Expert Section </a></li> --}}
-                        {{-- <li><a href="{{ route('admin.cms.home.features.index') }}"
-                                class="slide-item {{ request()->routeIs('admin.cms.home.features*') ? 'active' : '' }}">
-                                Features Section </a></li> --}}
-                        {{-- <li><a href="{{ route('admin.cms.home.operation.section') }}"
-                                class="slide-item {{ request()->routeIs('admin.cms.home.operation*') ? 'active' : '' }}">
-                                Operations Section </a></li> --}}
-                        {{-- <li><a href="{{ route('admin.cms.home.testimonial.index') }}"
-                                class="slide-item {{ request()->routeIs('admin.cms.home.testimonial*') ? 'active' : '' }}">
-                                Testimonial Section </a></li> --}}
                     </ul>
                 </li>
+                @endif
 
-                {{-- About Page --}}
-                {{-- <li class="slide">
-                    <a class="side-menu__item {{ request()->routeIs('admin.cms.about*') ? 'has-link active' : '' }}"
-                        data-bs-toggle="slide" href="/">
-                        <i class="side-menu__icon fa fa-user"></i>
-                        <span class="side-menu__label">About Page</span>
-                        <i class="angle fa fa-angle-right"></i>
-                    </a>
-                    <ul class="slide-menu">
-                        <li><a href="{{ route('admin.cms.about.index') }}"
-                                class="slide-item {{ request()->routeIs('admin.cms.about.index') ? 'active' : '' }}">
-                                About Us </a></li>
-                        <li><a href="{{ route('admin.cms.about.team.index') }}"
-                                class="slide-item {{ request()->routeIs('admin.cms.about.team*') ? 'active' : '' }}">
-                                Our Team </a></li>
-                        <li><a href="{{ route('admin.cms.about.getting-started.index') }}"
-                                class="slide-item {{ request()->routeIs('admin.cms.about.getting-started*') ? 'active' : '' }}">
-                                Get Started </a></li>
-                    </ul>
-                </li> --}}
-
+                {{-- Settings --}}
+                @if(auth()->user()?->hasRole('admin') || auth()->user()?->can('view settings') || auth()->user()?->can('manage settings'))
                 <li>
                     <h3>Settings</h3>
                 </li>
@@ -232,6 +260,7 @@
                                 Social Links </a></li>
                     </ul>
                 </li>
+                @endif
             </ul>
 
             <div class="slide-right" id="slide-right"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191"

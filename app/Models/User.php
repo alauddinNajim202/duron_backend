@@ -59,12 +59,41 @@ class User extends Authenticatable implements JWTSubject
         }
 
         // Return only the path for web requests
-        return $value;
+        return $value ?? $this->profile?->avatar;
+    }
+
+    public function getNameAttribute(): string
+    {
+        if ($this->relationLoaded('profile') || $this->profile) {
+            $fullName = trim(($this->profile->first_name ?? '') . ' ' . ($this->profile->last_name ?? ''));
+            if (!empty($fullName)) {
+                return $fullName;
+            }
+            return $this->profile->username ?? $this->email;
+        }
+        return $this->email;
+    }
+
+    public function getSlugAttribute(): ?string
+    {
+        return $this->profile?->slug;
     }
 
     public function getRoleAttribute()
     {
         return  $this->getRoleNames()->first();
+    }
+
+    public function isBackendUser(): bool
+    {
+        if ($this->hasAnyRole(['admin', 'developer'])) {
+            return true;
+        }
+
+        return $this->roles()
+            ->where('guard_name', 'web')
+            ->whereNotIn('name', ['client', 'expert'])
+            ->exists();
     }
 
     public function firebaseTokens()
