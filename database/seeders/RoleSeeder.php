@@ -17,9 +17,9 @@ class RoleSeeder extends Seeder
         $roles = [
             // Web guard — Admin Panel
             ['name' => 'admin',   'guard_name' => 'web'],
-            ['name' => 'manager', 'guard_name' => 'web'],
             ['name' => 'expert',  'guard_name' => 'web'],
             ['name' => 'client',  'guard_name' => 'web'],
+            ['name' => 'manager', 'guard_name' => 'web'],
 
             // API guard — Mobile / REST API
             ['name' => 'expert',  'guard_name' => 'api'],

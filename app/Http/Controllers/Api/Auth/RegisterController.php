@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\RegistrationNotification;
+use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
 {
@@ -42,7 +43,7 @@ class RegisterController extends Controller
             'email' => 'required|string|email|max:150|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'agree' => 'required',
-            'role' => 'required|in:2,3', // 2=expert, 3=client
+            'role' => 'required|in:2,3,expert,client', // 2=expert, 3=client
         ]);
 
         if ($validator->fails()) {
@@ -76,12 +77,22 @@ class RegisterController extends Controller
                 'slug'  => $slug,
             ]);
 
-            // Assign role
-            DB::table('model_has_roles')->insert([
-                'role_id' => $request->role,
-                'model_type' => User::class,
-                'model_id' => $user->id,
-            ]);
+            // Assign role safely using Spatie Role model
+            $roleName = match ((string) $request->role) {
+                '2', 'expert' => 'expert',
+                '3', 'client' => 'client',
+                default       => null,
+            };
+
+            if ($roleName) {
+                $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+                $user->assignRole($role);
+            } else {
+                $existingRole = Role::find($request->role);
+                if ($existingRole) {
+                    $user->assignRole($existingRole);
+                }
+            }
 
             // Create OTP token for email verification
             $otp = rand(100000, 999999); // 6-digit OTP

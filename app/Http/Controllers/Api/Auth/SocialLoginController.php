@@ -87,7 +87,25 @@ public function SocialLogin(Request $request)
             ]);
 
             if ($request->filled('role')) {
-                $user->assignRole($request->input('role'));
+                $roleInput = $request->input('role');
+                $roleName = match ((string) $roleInput) {
+                    '2', 'expert' => 'expert',
+                    '3', 'client' => 'client',
+                    default       => null,
+                };
+
+                if ($roleName) {
+                    $rolesToAssign = [
+                        \Spatie\Permission\Models\Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']),
+                        \Spatie\Permission\Models\Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'api']),
+                    ];
+                    $user->syncRoles($rolesToAssign);
+                } else {
+                    $existingRole = \Spatie\Permission\Models\Role::find($roleInput);
+                    if ($existingRole) {
+                        $user->assignRole($existingRole);
+                    }
+                }
             }
 
             $isNewUser = true;

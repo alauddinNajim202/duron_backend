@@ -62,11 +62,10 @@ class RegisteredUserController extends Controller
             'otp_expires_at' => Carbon::now()->addMinutes(60),
         ]);
 
-        DB::table('model_has_roles')->insert([
-            'role_id' => $request->role,
-            'model_type' => 'App\Models\User',
-            'model_id' => $user->id
-        ]);
+        $role = \Spatie\Permission\Models\Role::find($request->role);
+        if ($role) {
+            $user->assignRole($role);
+        }
 
         //* Send the new OTP to the user's email
         Mail::to($user->email)->queue(new OtpMail($user->otp, $user, 'Verify Your Email Address'));
