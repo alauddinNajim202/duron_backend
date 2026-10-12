@@ -18,14 +18,26 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $user = Auth::guard('web')->user();
-        $users = User::where('id', '!=', $user->id)->with(['roles', 'profile'])->orderBy('id', 'desc')->paginate(25);
+        // Only fetch users who have backend/staff roles (excluding client and expert)
+        $adminRoles = Role::where('guard_name', 'web')
+            ->whereNotIn('name', ['client', 'expert', 'Client', 'Expert'])
+            ->pluck('name');
+
+        $users = User::role($adminRoles, 'web')
+            ->with(['roles', 'profile'])
+            ->orderBy('id', 'desc')
+            ->paginate(25);
+
         return view('backend.layouts.access.users.index', compact('users'));
     }
 
     public function create()
     {
-        return view('backend.layouts.access.users.create', ['roles' => Role::all()]);
+        $roles = Role::where('guard_name', 'web')
+            ->whereNotIn('name', ['client', 'expert', 'Client', 'Expert'])
+            ->get();
+
+        return view('backend.layouts.access.users.create', compact('roles'));
     }
 
     public function store(Request $request)
@@ -59,7 +71,7 @@ class UserController extends Controller
         $roleModels = Role::whereIn('id', $request->roles)->get();
         $user->syncRoles($roleModels);
 
-        return redirect()->route('admin.users.index')->with('t-success', 'User created t-successfully');
+        return redirect()->route('admin.users.index')->with('t-success', 'User created successfully');
     }
 
     public function show($id)
@@ -70,8 +82,11 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user = User::find($id);
-        $roles = Role::all();
+        $user = User::findOrFail($id);
+        $roles = Role::where('guard_name', 'web')
+            ->whereNotIn('name', ['client', 'expert', 'Client', 'Expert'])
+            ->get();
+
         return view('backend.layouts.access.users.edit', compact('user', 'roles'));
     }
 
@@ -118,10 +133,18 @@ class UserController extends Controller
 
     public function destroy($id)
     {
+        if (Auth::guard('web')->id() == $id) {
+            return redirect()->back()->with('t-error', 'You cannot delete your own account.');
+        }
+
         $user = User::find($id);
-        DB::table('model_has_roles')->where('model_id', $id)->delete();
-        $user->delete();
-        return redirect()->back()->with('t-success', 'User deleted t-successfully');
+        if ($user) {
+            DB::table('model_has_roles')->where('model_id', $id)->delete();
+            $user->delete();
+            return redirect()->back()->with('t-success', 'User deleted successfully');
+        }
+
+        return redirect()->back()->with('t-error', 'User not found');
     }
 
     public function status(int $id)

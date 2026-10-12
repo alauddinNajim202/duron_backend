@@ -58,7 +58,12 @@
                                         @forelse ($users as $user)
                                         <tr>
                                             <td>{{ $sn++ }}</td>
-                                            <td>{{ $user->name }}</td>
+                                            <td>
+                                                {{ $user->name }}
+                                                @if(auth()->id() == $user->id)
+                                                    <span class="badge bg-secondary-subtle text-secondary ms-1">You</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $user->email }}</td>
                                             <td>
                                                 @forelse ($user->roles as $role)
@@ -100,6 +105,7 @@
                                                         @endif
                                                     </a>
 
+                                                    @if(auth()->id() != $user->id)
                                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?')" style="margin: 0; padding: 0;">
                                                         @csrf
                                                         @method('DELETE')
@@ -107,6 +113,7 @@
                                                             <i class="mdi mdi-delete"></i>
                                                         </button>
                                                     </form>
+                                                    @endif
                                                 </div>
 
                                             </td>
