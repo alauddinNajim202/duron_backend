@@ -20,11 +20,11 @@ class ExpertManageController extends Controller
      */
     public function index(Request $request)
     {
-        $totalExperts    = User::role('expert')->count();
-        $activeExperts   = User::role('expert')->where('status', 'active')->count();
-        $inactiveExperts = User::role('expert')->where('status', 'inactive')->count();
-        $suspendedExperts = User::role('expert')->where('status', 'suspended')->count();
-        $deletedExperts  = User::role('expert')->onlyTrashed()->count();
+        $totalExperts    = User::role('expert', 'web')->count();
+        $activeExperts   = User::role('expert', 'web')->where('status', 'active')->count();
+        $inactiveExperts = User::role('expert', 'web')->where('status', 'inactive')->count();
+        $suspendedExperts = User::role('expert', 'web')->where('status', 'suspended')->count();
+        $deletedExperts  = User::role('expert', 'web')->onlyTrashed()->count();
 
         return view('backend.layouts.users.experts.index', compact(
             'totalExperts',
@@ -240,7 +240,7 @@ class ExpertManageController extends Controller
      */
     public function show($id)
     {
-        $expert = User::role('expert')
+        $expert = User::role('expert', 'web')
             ->withTrashed()
             ->with([
                 'profile',
@@ -329,7 +329,7 @@ class ExpertManageController extends Controller
                 'reason' => 'required_if:status,suspended|nullable|string|max:500',
             ]);
 
-            $expert = User::role('expert')->findOrFail($id);
+            $expert = User::role('expert', 'web')->findOrFail($id);
             $expert->update(['status' => $request->status]);
 
             // Send email notification to expert
@@ -358,7 +358,7 @@ class ExpertManageController extends Controller
      */
     public function destroy($id)
     {
-        $expert = User::role('expert')->findOrFail($id);
+        $expert = User::role('expert', 'web')->findOrFail($id);
 
         if (Order::where('seller_id', $id)->whereIn('status', ['active', 'delivered', 'revision_requested'])->exists()) {
             return response()->json([
@@ -376,7 +376,7 @@ class ExpertManageController extends Controller
      */
     public function restore($id)
     {
-        $expert = User::role('expert')->onlyTrashed()->findOrFail($id);
+        $expert = User::role('expert', 'web')->onlyTrashed()->findOrFail($id);
         $expert->restore();
         return response()->json(['success' => true, 'message' => 'Expert restored successfully']);
     }
@@ -386,7 +386,7 @@ class ExpertManageController extends Controller
      */
     public function forceDelete($id)
     {
-        $expert = User::role('expert')->onlyTrashed()->findOrFail($id);
+        $expert = User::role('expert', 'web')->onlyTrashed()->findOrFail($id);
         $expert->forceDelete();
         return response()->json(['success' => true, 'message' => 'Expert permanently deleted']);
     }
@@ -397,7 +397,7 @@ class ExpertManageController extends Controller
     public function export(Request $request)
     {
         try {
-            $query = User::role('expert')->with('profile');
+            $query = User::role('expert', 'web')->with('profile');
 
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
@@ -447,7 +447,7 @@ class ExpertManageController extends Controller
      */
     public function getLevelForm($id)
     {
-        $expert = User::role('expert')
+        $expert = User::role('expert', 'web')
             ->with('profile')
             ->findOrFail($id);
 
@@ -477,7 +477,7 @@ class ExpertManageController extends Controller
         ]);
 
         try {
-            $expert = User::role('expert')->findOrFail($id);
+            $expert = User::role('expert', 'web')->findOrFail($id);
 
             $expert->profile()->update([
                 'level'      => $request->level,
@@ -504,7 +504,7 @@ class ExpertManageController extends Controller
      */
     public function edit($id)
     {
-        $expert = User::role('expert')
+        $expert = User::role('expert', 'web')
             ->withTrashed()
             ->with([
                 'profile',
@@ -522,7 +522,7 @@ class ExpertManageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $expert = User::role('expert')->withTrashed()->findOrFail($id);
+        $expert = User::role('expert', 'web')->withTrashed()->findOrFail($id);
 
         $request->validate([
             'first_name'  => 'required|string|max:100',
