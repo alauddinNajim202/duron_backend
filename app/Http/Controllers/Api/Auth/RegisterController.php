@@ -85,8 +85,17 @@ class RegisterController extends Controller
             };
 
             if ($roleName) {
+                // 1. Assign web role (used by Admin Panel)
                 $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
                 $user->assignRole($role);
+
+                // 2. Also attach api role (used by mobile / API)
+                $apiRole = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'api']);
+                DB::table('model_has_roles')->insertOrIgnore([
+                    'role_id'    => $apiRole->id,
+                    'model_type' => User::class,
+                    'model_id'   => $user->id,
+                ]);
             } else {
                 $existingRole = Role::find($request->role);
                 if ($existingRole) {
